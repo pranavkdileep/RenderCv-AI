@@ -1,0 +1,90 @@
+cv:
+  name: Pranav K Dileep
+  location: Thrissur
+  email: pranavkdileepme@gmail.com
+  phone: +91 9544047655
+  social_networks:
+    - network: LinkedIn
+      username: pranavkdileep
+    - network: GitHub
+      username: pranavkdileep
+  sections:
+    summary:
+      - Computer Science and Cyber Security student passionate about building websites and Android applications. Cloud expert with a strong ability to learn new technologies quickly.
+    education:
+      - institution: University College of Engineering, Thodupuzha
+        area: Cyber Security
+        degree: B.Tech
+        start_date: '2022'
+        end_date: '2026'
+        highlights:
+          - 'CGPA: 7.78/10'
+      - institution: Higher Secondary School
+        area: Computer Science
+        degree: 12th Grade
+        start_date: '2020'
+        end_date: '2022'
+        highlights:
+          - 'Percentage: 82%'
+    projects:
+      - name: Deployer
+        date: '2025'
+        highlights:
+          - Developed a self-hosted Docker-based hosting control panel to manage web apps, services, databases, SSL, and logs via a clean web UI.
+          - Achieved 30+ stars on GitHub.
+        link: https://github.com/pranavkdileep/Deployer
+      - name: DDoS Attack Detection using Hybrid Deep Learning
+        date: '2025'
+        highlights:
+          - Implemented a hybrid deep learning model using TensorFlow and Python for network security.
+          - Developed CICFlowMeter-Go in Go language for high-performance network monitoring.
+        link: https://github.com/pranavkdileep/CICFlowMeter-Go
+      - name: Ktucyber.com
+        date: '2024'
+        highlights:
+          - Built a study material sharing platform featuring authentication, email verification, and full CRUD operations.
+          - Implemented social features including bookmarking and user-following systems.
+        link: https://github.com/pranavkdileep/ktucyber2.0
+      - name: RealTime Bus Tracker with GPS
+        date: '2025'
+        highlights:
+          - Developed conductor and user Android applications using Kotlin and Jetpack Compose.
+          - Engineered a tracking IoT device using ESP8266 and GPS modules integrated with a custom backend.
+      - name: TeachersDiary
+        date: '2025'
+        highlights:
+          - Created a PHP-based management system for tracking daily academic activities and attendance.
+          - Designed and implemented dedicated dashboards for Teachers, HODs, and Principals.
+        link: https://github.com/pranavkdileep/TeachersDiary
+      - name: TK-VPN
+        date: '2023'
+        highlights:
+          - Developed an Android VPN application in Java based on the OpenVPN protocol.
+        link: https://apps.samsung.com/appquery/appDetail.as?appId=com.pranavkd.freevpn
+      - name: RealTime Bus Tracker with GPS
+        date: '2025'
+        highlights:
+          - Developed conductor and user Android applications using Kotlin and Jetpack Compose.
+          - Engineered a tracking IoT device using ESP8266 and GPS modules integrated with a custom backend.
+      - name: TeachersDiary
+        date: '2025'
+        highlights:
+          - Created a PHP-based management system for tracking daily academic activities and attendance.
+          - Designed and implemented dedicated dashboards for Teachers, HODs, and Principals.
+        link: https://github.com/pranavkdileep/TeachersDiary
+      - name: TK-VPN
+        date: '2023'
+        highlights:
+          - Developed an Android VPN application in Java based on the OpenVPN protocol.
+        link: https://apps.samsung.com/appquery/appDetail.as?appId=com.pranavkd.freevpn
+    skills:
+      - label: Programming
+        details: Python, C++, Go, Java, JavaScript, TypeScript, Git
+      - label: Development
+        details: Web Development, Android App Development, Docker, Cloud Computing
+      - label: Mathematics
+        details: Differential Equations, Calculus, Linear Algebra
+      - label: Languages
+        details: English (Fluent), Malayalam (Native)
+design:
+  theme: engineeringresumes
