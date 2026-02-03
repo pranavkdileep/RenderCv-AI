@@ -8,6 +8,7 @@ import ApiConfigurationModal from "@/components/ApiConfigurationModal";
 import { ViewMode } from "@/types";
 import { Check, Code, Copy, Download, FileText, KeyRound, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
+import GalaxyAILoader from "@/components/ui/GalaxyAILoader";
 
 const INITIAL_YAML = `cv:
   name: Your Name
@@ -319,7 +320,8 @@ export default function Home() {
              />
              {isGenerating && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center flex-col gap-4">
-                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+                  {/* <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div> */}
+                  <GalaxyAILoader />
                   <p className="text-purple-300 font-medium animate-pulse">Generating Schema...</p>
                 </div>
              )}

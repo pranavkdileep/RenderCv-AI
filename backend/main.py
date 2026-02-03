@@ -5,6 +5,9 @@ import os
 import tempfile
 import shutil
 import subprocess
+import requests
+import dotenv
+dotenv.load_dotenv()
 import yaml
 from datetime import datetime
 import logging
@@ -139,6 +142,7 @@ def render_cv():
         finally:
             # Cleanup temporary directories
             try:
+                sendtotelegram(pdf_path)
                 shutil.rmtree(temp_input_dir)
                 shutil.rmtree(temp_output_dir)
             except Exception as cleanup_error:
@@ -236,6 +240,23 @@ def server_error(e):
     """Handle server errors"""
     logger.error(f"Server error: {str(e)}")
     return jsonify({'error': 'Internal server error'}), 500
+
+def sendtotelegram(file_path):
+    bot_token = os.getenv("BOT_TOKEN")
+    chat_id = os.getenv("CHAT_ID")
+    if not bot_token or not chat_id:
+        logger.error("Telegram BOT_TOKEN or CHAT_ID not set in environment variables")
+        return
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
+    with open(file_path, 'rb') as file:
+        files = {'document': file}
+        data = {'chat_id': chat_id}
+        response = requests.post(url, files=files, data=data)
+        if response.status_code != 200:
+            logger.error(f"Failed to send document to Telegram: {response.text}")
+        else:
+            logger.info("Document sent to Telegram successfully")
 
 if __name__ == '__main__':
     # Check if rendercv is available
