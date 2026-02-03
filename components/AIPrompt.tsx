@@ -5,10 +5,17 @@ import { Sparkles, Send, Loader2 } from 'lucide-react';
 interface AIPromptProps {
   onGenerate: (prompt: string) => Promise<void>;
   isGenerating: boolean;
+  prefillPrompt?: string;
 }
 
-const AIPrompt: React.FC<AIPromptProps> = ({ onGenerate, isGenerating }) => {
+const AIPrompt: React.FC<AIPromptProps> = ({ onGenerate, isGenerating, prefillPrompt }) => {
   const [prompt, setPrompt] = useState('');
+
+  React.useEffect(() => {
+    if (prefillPrompt !== undefined) {
+      setPrompt(prefillPrompt);
+    }
+  }, [prefillPrompt]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

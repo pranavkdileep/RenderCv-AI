@@ -7,7 +7,7 @@ import Preview from "@/components/Preview";
 import ApiConfigurationModal from "@/components/ApiConfigurationModal";
 import { ViewMode } from "@/types";
 import { Check, Code, Copy, Download, FileText, KeyRound, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import GalaxyAILoader from "@/components/ui/GalaxyAILoader";
 
 const INITIAL_YAML = `cv:
@@ -69,6 +69,9 @@ export default function Home() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showApiPrompt, setShowApiPrompt] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [aiFixPrompt, setAiFixPrompt] = useState<string | undefined>(undefined);
+
+  const editorInstanceRef = useRef<any | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -212,6 +215,19 @@ export default function Home() {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
+  const handleFixError = (error: string) => {
+    const fixText = `fix ${error}`;
+    setAiFixPrompt(fixText);
+    setViewMode("editor");
+
+    // Defer focus to ensure layout/view updates first
+    setTimeout(() => {
+      if (editorInstanceRef.current && typeof editorInstanceRef.current.focus === "function") {
+        editorInstanceRef.current.focus();
+      }
+    }, 0);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       <script
@@ -304,7 +320,7 @@ export default function Home() {
 
       <div className="flex flex-1 overflow-hidden">
         <div className={`${viewMode === 'preview' ? 'hidden md:flex' : 'flex'} w-full md:w-1/2 lg:w-[45%] flex-col border-r border-gray-800 bg-[#1e1e1e]`}>
-          <AIPrompt onGenerate={handleGenerate} isGenerating={isGenerating} />
+          <AIPrompt onGenerate={handleGenerate} isGenerating={isGenerating} prefillPrompt={aiFixPrompt} />
           
           <div className="flex items-center justify-between px-4 py-2 bg-[#252526] border-b border-gray-800">
              <span className="text-xs font-mono text-gray-400 flex items-center gap-2">
@@ -316,7 +332,10 @@ export default function Home() {
           <div className="flex-1 overflow-hidden relative group">
              <Editor 
                 value={yamlCode} 
-                onChange={(val) => setYamlCode(val || '')} 
+               onChange={(val) => setYamlCode(val || '')}
+               onEditorMount={(instance) => {
+                editorInstanceRef.current = instance;
+               }}
              />
              {isGenerating && (
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-10 flex items-center justify-center flex-col gap-4">
@@ -336,7 +355,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 overflow-hidden p-0 sm:p-4 bg-gray-900/50">
-             <Preview yamlCode={yamlCode} />
+             <Preview yamlCode={yamlCode} onFixError={handleFixError} />
           </div>
         </div>
 
@@ -357,7 +376,7 @@ export default function Home() {
 
         {viewMode === 'preview' && (
           <div className="md:hidden absolute inset-0 top-16 bg-gray-900 z-40 p-4 overflow-y-auto">
-             <Preview yamlCode={yamlCode} />
+             <Preview yamlCode={yamlCode} onFixError={handleFixError} />
           </div>
         )}
       </div>

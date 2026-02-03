@@ -5,9 +5,10 @@ import { renderSvgFromYaml } from "@/actions/renderSvg";
 
 interface PreviewProps {
   yamlCode: string;
+  onFixError?: (error: string) => void;
 }
 
-const Preview: React.FC<PreviewProps> = ({ yamlCode }) => {
+const Preview: React.FC<PreviewProps> = ({ yamlCode, onFixError }) => {
   const [svgs, setSvgs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -45,7 +46,18 @@ const Preview: React.FC<PreviewProps> = ({ yamlCode }) => {
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           <AlertTriangle className="mt-0.5 h-4 w-4" />
-          <div>{error}</div>
+          <div className="flex-1">
+            <div>{error}</div>
+            {error.includes("RenderCVValidationError") && onFixError && (
+              <button
+                type="button"
+                onClick={() => onFixError(error)}
+                className="mt-2 inline-flex items-center gap-1 rounded-md bg-purple-600 px-2.5 py-1 text-xs font-medium text-white shadow hover:bg-purple-700"
+              >
+                Fix with AI
+              </button>
+            )}
+          </div>
         </div>
       )}
 

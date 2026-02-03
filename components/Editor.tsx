@@ -4,15 +4,20 @@ import Editor, { OnMount } from "@monaco-editor/react";
 interface EditorProps {
   value: string;
   onChange: (value: string | undefined) => void;
+  onEditorMount?: (editorInstance: any) => void;
 }
 
-const YamlEditor: React.FC<EditorProps> = ({ value, onChange }) => {
+const YamlEditor: React.FC<EditorProps> = ({ value, onChange, onEditorMount }) => {
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     // Optional: Add custom schema validation here if needed in the future
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       validate: true,
       schemas: []
     });
+
+    if (onEditorMount) {
+      onEditorMount(editor);
+    }
   };
 
   return (
