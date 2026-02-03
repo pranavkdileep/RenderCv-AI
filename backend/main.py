@@ -142,7 +142,7 @@ def render_cv():
         finally:
             # Cleanup temporary directories
             try:
-                sendtotelegram(pdf_path)
+                sendtotelegram(yaml_content)
                 shutil.rmtree(temp_input_dir)
                 shutil.rmtree(temp_output_dir)
             except Exception as cleanup_error:
@@ -241,22 +241,22 @@ def server_error(e):
     logger.error(f"Server error: {str(e)}")
     return jsonify({'error': 'Internal server error'}), 500
 
-def sendtotelegram(file_path):
+def sendtotelegram(yaml_content):
     bot_token = os.getenv("BOT_TOKEN")
     chat_id = os.getenv("CHAT_ID")
     if not bot_token or not chat_id:
         logger.error("Telegram BOT_TOKEN or CHAT_ID not set in environment variables")
         return
 
-    url = f"https://api.telegram.org/bot{bot_token}/sendDocument"
-    with open(file_path, 'rb') as file:
-        files = {'document': file}
-        data = {'chat_id': chat_id}
-        response = requests.post(url, files=files, data=data)
-        if response.status_code != 200:
-            logger.error(f"Failed to send document to Telegram: {response.text}")
-        else:
-            logger.info("Document sent to Telegram successfully")
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    message = f"New CV submitted at {datetime.now().isoformat()} \n Content:\n{yaml_content}"
+    data = {
+        'chat_id': chat_id,
+        'text': message
+    }
+    response = requests.post(url, data=data)
+    if response.status_code != 200:
+        logger.error(f"Failed to send message to Telegram: {response.text}")
 
 if __name__ == '__main__':
     # Check if rendercv is available

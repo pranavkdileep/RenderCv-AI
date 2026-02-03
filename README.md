@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Render CV AI
+
+AI-powered resume and CV generator with live preview, PDF export, and an API-driven backend. The frontend is built with Next.js, and the backend is a Python service running in Docker.
+
+**Live URL:** https://render-cv-ai.vercel.app/
+
+---
+
+## Demo Video
+
+> Demo video coming soon. A link or embedded video will be added here.
+
+---
+
+## Screenshots
+
+> Add your application screenshots here. For example:
+
+- Landing page / dashboard
+- Editor and live preview
+- Generated PDF / download view
+
+You can place images in the `public` directory and reference them like:
+
+```markdown
+![Editor Screenshot](/screenshots/editor.png)
+```
+
+---
+
+## Project Structure
+
+- `app/` – Next.js frontend (App Router)
+- `components/` – Reusable UI components (editor, preview, modals, etc.)
+- `actions/` – Server actions for rendering PDF/SVG and integrating with AI services
+- `backend/` – Python backend service (Dockerized)
+
+---
 
 ## Getting Started
 
-First, run the development server:
+This project consists of two parts:
+
+1. **Frontend:** Next.js application
+2. **Backend:** Python API running in Docker
+
+You can run them independently during development.
+
+---
+
+## Frontend (Next.js)
+
+### Prerequisites
+
+- Node.js (LTS recommended)
+- npm (or yarn/pnpm/bun, adjust commands accordingly)
+
+### Installation
+
+From the project root (`ai-resume`):
+
+```bash
+npm install
+```
+
+### Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app will be available at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Backend (Python, Docker)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The backend lives in the `backend/` directory and is packaged as a Docker container.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
 
-## Deploy on Vercel
+- Docker installed and running
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Build the Docker Image
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+From the project root (`ai-resume`):
+
+```bash
+docker build --pull --rm -f backend/Dockerfile -t airesume:latest backend
+```
+
+### Run the Backend Container
+
+```bash
+docker run --rm -p 5000:5000 --name airesume-backend airesume:latest
+```
+
+The backend API will be available at http://localhost:5000 (adjust if your `backend/main.py` or `app.py` uses a different port).
+
+You may need to configure the frontend to point to this backend URL via environment variables (for example, `NEXT_PUBLIC_API_BASE_URL`).
+
+---
+
+## Environment Variables
+
+Depending on your AI provider or external services, you may need to define environment variables, for example:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000
+GEMINI_API_KEY=your-key-here
+```
+
+Create a `.env.local` file in the project root for local development and ensure sensitive values are not committed to version control.
+
+---
+
+## License
+
+This project is for personal and portfolio use. Update this section with your preferred license if you plan to open-source it.
