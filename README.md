@@ -8,23 +8,15 @@ AI-powered resume and CV generator with live preview, PDF export, and an API-dri
 
 ## Demo Video
 
-> Demo video coming soon. A link or embedded video will be added here.
+> Demo video coming soon.
 
 ---
 
 ## Screenshots
 
-> Add your application screenshots here. For example:
 
-- Landing page / dashboard
-- Editor and live preview
-- Generated PDF / download view
-
-You can place images in the `public` directory and reference them like:
-
-```markdown
 ![Editor Screenshot](/screenshots/editor.png)
-```
+
 
 ---
 
@@ -123,4 +115,4 @@ Create a `.env.local` file in the project root for local development and ensure 
 
 ## License
 
-This project is for personal and portfolio use. Update this section with your preferred license if you plan to open-source it.
+This project is for personal and portfolio use.
