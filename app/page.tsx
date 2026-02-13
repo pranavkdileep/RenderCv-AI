@@ -61,6 +61,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [hasGeneratedYaml, setHasGeneratedYaml] = useState(false);
+  const [autoRenderTrigger, setAutoRenderTrigger] = useState(0);
 
   type ApiMode = "user" | "public" | null;
 
@@ -166,6 +167,7 @@ export default function Home() {
 
       setYamlCode(newYaml);
       setHasGeneratedYaml(true);
+      setAutoRenderTrigger((prev) => prev + 1);
 
       if (typeof window !== "undefined") {
         window.sessionStorage.setItem("resumeYaml", newYaml);
@@ -355,7 +357,11 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 overflow-hidden p-0 sm:p-4 bg-gray-900/50">
-             <Preview yamlCode={yamlCode} onFixError={handleFixError} />
+             <Preview
+               yamlCode={yamlCode}
+               onFixError={handleFixError}
+               autoRenderTrigger={autoRenderTrigger}
+             />
           </div>
         </div>
 
@@ -376,7 +382,11 @@ export default function Home() {
 
         {viewMode === 'preview' && (
           <div className="md:hidden absolute inset-0 top-16 bg-gray-900 z-40 p-4 overflow-y-auto">
-             <Preview yamlCode={yamlCode} onFixError={handleFixError} />
+             <Preview
+               yamlCode={yamlCode}
+               onFixError={handleFixError}
+               autoRenderTrigger={autoRenderTrigger}
+             />
           </div>
         )}
       </div>

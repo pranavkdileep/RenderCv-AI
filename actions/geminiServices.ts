@@ -135,6 +135,7 @@ export const generateResumeYAML = async (
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         temperature: 0.4, // Lower temperature for more deterministic code generation
+        
       },
     });
 
