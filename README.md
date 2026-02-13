@@ -8,14 +8,19 @@ AI-powered resume and CV generator with live preview, PDF export, and an API-dri
 
 ## Demo Video
 
-> Demo video coming soon.
+
+
+https://github.com/user-attachments/assets/995fa5a3-8705-4307-a9a5-f2f451507494
+
+
 
 ---
 
 ## Screenshots
 
 
-![Editor Screenshot](/screenshots/editor.png)
+<img width="1918" height="928" alt="image" src="https://github.com/user-attachments/assets/e9a15af5-90fe-4d83-953f-98615bd8cd0e" />
+
 
 
 ---
