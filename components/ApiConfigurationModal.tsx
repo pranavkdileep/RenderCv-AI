@@ -5,6 +5,8 @@ interface ApiConfigurationModalProps {
   isOpen: boolean;
   onClose: () => void;
   isForced?: boolean; // If true, user must select an option to proceed (no close button)
+  provider: "openai" | "gemini";
+  onProviderChange: (provider: "openai" | "gemini") => void;
   currentMode: "user" | "public" | null;
   currentUserKey: string | null;
   onSaveUserKey: (key: string) => void;
@@ -16,6 +18,8 @@ const ApiConfigurationModal: React.FC<ApiConfigurationModalProps> = ({
   isOpen,
   onClose,
   isForced = false,
+  provider,
+  onProviderChange,
   currentMode,
   currentUserKey,
   onSaveUserKey,
@@ -71,8 +75,36 @@ const ApiConfigurationModal: React.FC<ApiConfigurationModalProps> = ({
         {/* Content */}
         <div className="p-6 space-y-6">
           <p className="text-sm text-gray-400 leading-relaxed">
-            To generate resume content with AI, please configure the Google Gemini API.
+            Choose your AI provider and configure the API access mode used to generate resume content.
           </p>
+
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Provider</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onProviderChange('openai')}
+                className={`rounded-md border px-3 py-2 text-sm transition-colors ${
+                  provider === 'openai'
+                    ? 'border-blue-500 bg-blue-950/40 text-blue-100'
+                    : 'border-gray-700 bg-gray-800/40 text-gray-300 hover:border-gray-600'
+                }`}
+              >
+                OpenAI
+              </button>
+              <button
+                type="button"
+                onClick={() => onProviderChange('gemini')}
+                className={`rounded-md border px-3 py-2 text-sm transition-colors ${
+                  provider === 'gemini'
+                    ? 'border-purple-500 bg-purple-950/40 text-purple-100'
+                    : 'border-gray-700 bg-gray-800/40 text-gray-300 hover:border-gray-600'
+                }`}
+              >
+                Gemini
+              </button>
+            </div>
+          </div>
 
           {/* User Key Section */}
           <div className={`space-y-3 p-4 rounded-lg border transition-all ${currentMode === 'user' ? 'bg-purple-900/10 border-purple-500/50' : 'bg-gray-800/30 border-gray-700 hover:border-gray-600'}`}>
@@ -86,7 +118,7 @@ const ApiConfigurationModal: React.FC<ApiConfigurationModalProps> = ({
                  type="password" 
                  value={apiKeyInput}
                  onChange={(e) => setApiKeyInput(e.target.value)}
-                 placeholder="Enter gemini-pro-key..."
+                 placeholder={provider === 'openai' ? "Enter OpenAI-compatible API key..." : "Enter Gemini API key..."}
                  className="flex-1 bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
                />
                {currentUserKey && (
@@ -109,7 +141,7 @@ const ApiConfigurationModal: React.FC<ApiConfigurationModalProps> = ({
                 {currentUserKey ? "Update & Use My Key" : "Save & Use My Key"}
              </button>
              <p className="text-[10px] text-gray-500 px-1">
-                Your key is stored locally in your browser and sent directly to Google.
+                Your key is stored locally in your browser and sent to the selected provider from the server action.
              </p>
           </div>
 
@@ -134,7 +166,7 @@ const ApiConfigurationModal: React.FC<ApiConfigurationModalProps> = ({
             </div>
             
             <p className="text-xs text-gray-400 mb-3">
-                Use the shared API key provided by the server. Ideal for testing.
+                Use the shared server-side key for {provider === 'openai' ? 'OpenAI' : 'Gemini'}. Ideal for testing.
             </p>
             
             <button 

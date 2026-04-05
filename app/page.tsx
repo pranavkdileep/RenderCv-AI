@@ -1,5 +1,12 @@
 "use client";
-import { generateResumeYAML, editResumeYAML } from "@/actions/geminiServices";
+import {
+  editResumeYAML as editResumeYAMLWithGemini,
+  generateResumeYAML as generateResumeYAMLWithGemini,
+} from "@/actions/geminiServices";
+import {
+  editResumeYAML as editResumeYAMLWithOpenAI,
+  generateResumeYAML as generateResumeYAMLWithOpenAI,
+} from "@/actions/openaiServices";
 import { renderPdfFromYaml } from "@/actions/renderPdf";
 import AIPrompt from "@/components/AIPrompt";
 import Editor from "@/components/Editor";
@@ -64,8 +71,10 @@ export default function Home() {
   const [autoRenderTrigger, setAutoRenderTrigger] = useState(0);
 
   type ApiMode = "user" | "public" | null;
+  type AIProvider = "openai" | "gemini";
 
-  const [apiMode, setApiMode] = useState<ApiMode>(null);
+  const [provider, setProvider] = useState<AIProvider>("openai");
+  const [apiMode, setApiMode] = useState<ApiMode>("public");
   const [userApiKey, setUserApiKey] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showApiPrompt, setShowApiPrompt] = useState(false);
@@ -73,18 +82,34 @@ export default function Home() {
   const [aiFixPrompt, setAiFixPrompt] = useState<string | undefined>(undefined);
 
   const editorInstanceRef = useRef<any | null>(null);
+  const providerLabel = provider === "openai" ? "OpenAI" : "Gemini";
+  const getModeStorageKey = (targetProvider: AIProvider) =>
+    `aiKeyMode:${targetProvider}`;
+  const getUserKeyStorageKey = (targetProvider: AIProvider) =>
+    `aiUserApiKey:${targetProvider}`;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const storedMode = (window.localStorage.getItem("geminiKeyMode") as ApiMode | null) || null;
-    const storedUserKey = window.localStorage.getItem("geminiUserApiKey");
+    const storedProvider =
+      (window.localStorage.getItem("aiProvider") as AIProvider | null) || null;
+    const initialProvider = storedProvider || "openai";
+    const storedMode =
+      (window.localStorage.getItem(getModeStorageKey(initialProvider)) as ApiMode | null) ||
+      (initialProvider === "gemini"
+        ? (window.localStorage.getItem("geminiKeyMode") as ApiMode | null)
+        : null) ||
+      "public";
+    const storedUserKey =
+      window.localStorage.getItem(getUserKeyStorageKey(initialProvider)) ||
+      (initialProvider === "gemini"
+        ? window.localStorage.getItem("geminiUserApiKey")
+        : null);
     const storedYaml = window.sessionStorage.getItem("resumeYaml");
     const storedChanged = window.sessionStorage.getItem("yamlChanged");
 
-    if (storedMode) {
-      setApiMode(storedMode);
-    }
+    setProvider(initialProvider);
+    setApiMode(storedMode);
     if (storedUserKey) {
       setUserApiKey(storedUserKey);
     }
@@ -108,8 +133,9 @@ export default function Home() {
   
   const handleSaveUserKey = (key: string) => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("geminiUserApiKey", key);
-      window.localStorage.setItem("geminiKeyMode", "user");
+      window.localStorage.setItem(getUserKeyStorageKey(provider), key);
+      window.localStorage.setItem(getModeStorageKey(provider), "user");
+      window.localStorage.setItem("aiProvider", provider);
     }
     setUserApiKey(key);
     setApiMode("user");
@@ -119,24 +145,46 @@ export default function Home() {
 
   const handleDeleteUserKey = () => {
     if (typeof window !== "undefined") {
-      window.localStorage.removeItem("geminiUserApiKey");
+      window.localStorage.removeItem(getUserKeyStorageKey(provider));
       if (apiMode === "user") {
-        window.localStorage.removeItem("geminiKeyMode");
+        window.localStorage.setItem(getModeStorageKey(provider), "public");
       }
     }
     setUserApiKey(null);
     if (apiMode === "user") {
-      setApiMode(null);
+      setApiMode("public");
     }
   };
 
   const handleSetPublicMode = () => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("geminiKeyMode", "public");
+      window.localStorage.setItem(getModeStorageKey(provider), "public");
+      window.localStorage.setItem("aiProvider", provider);
     }
     setApiMode("public");
     setShowApiPrompt(false);
     setIsSettingsOpen(false);
+  };
+
+  const handleProviderChange = (nextProvider: AIProvider) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("aiProvider", nextProvider);
+      const nextMode =
+        (window.localStorage.getItem(getModeStorageKey(nextProvider)) as ApiMode | null) ||
+        (nextProvider === "gemini"
+          ? (window.localStorage.getItem("geminiKeyMode") as ApiMode | null)
+          : null) ||
+        "public";
+      const nextUserKey =
+        window.localStorage.getItem(getUserKeyStorageKey(nextProvider)) ||
+        (nextProvider === "gemini"
+          ? window.localStorage.getItem("geminiUserApiKey")
+          : null);
+
+      setApiMode(nextMode);
+      setUserApiKey(nextUserKey);
+    }
+    setProvider(nextProvider);
   };
 
   const handleClear = () => {
@@ -160,6 +208,15 @@ export default function Home() {
         apiKey: apiMode === "user" ? userApiKey : null,
         usePublicKey: apiMode === "public",
       } as const;
+
+      const generateResumeYAML =
+        provider === "openai"
+          ? generateResumeYAMLWithOpenAI
+          : generateResumeYAMLWithGemini;
+      const editResumeYAML =
+        provider === "openai"
+          ? editResumeYAMLWithOpenAI
+          : editResumeYAMLWithGemini;
 
       const newYaml = hasGeneratedYaml
         ? await editResumeYAML(prompt, yamlCode, options)
@@ -240,6 +297,8 @@ export default function Home() {
         isOpen={showApiPrompt || isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         isForced={showApiPrompt}
+        provider={provider}
+        onProviderChange={handleProviderChange}
         currentMode={apiMode}
         currentUserKey={userApiKey}
         onSaveUserKey={handleSaveUserKey}
@@ -283,12 +342,14 @@ export default function Home() {
           >
             <KeyRound size={14} className={apiMode ? "text-green-400" : "text-red-400"} />
             <span className="hidden sm:inline">
-              {apiMode === "user" && userApiKey && "My Gemini Key"}
-              {apiMode === "public" && "Public Key (resumebuilder)"}
-              {!apiMode || (apiMode === "user" && !userApiKey) ? "Set Gemini Key" : null}
+              {apiMode === "user" && userApiKey && `My ${providerLabel} Key`}
+              {apiMode === "public" && `${providerLabel} Public Key`}
+              {!apiMode || (apiMode === "user" && !userApiKey)
+                ? `Set ${providerLabel} Key`
+                : null}
             </span>
             <span className="sm:hidden">
-               {apiMode ? "Key Set" : "Set Key"}
+               {provider === "openai" ? "OpenAI" : "Gemini"}
             </span>
           </button>
 
