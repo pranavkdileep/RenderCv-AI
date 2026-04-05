@@ -95,6 +95,11 @@ type ApiKeyOptions = {
   usePublicKey?: boolean;
 };
 
+export type ResumeYamlActionResult = {
+  yaml?: string;
+  error?: string;
+};
+
 const getGeminiClient = ({ apiKey, usePublicKey }: ApiKeyOptions = {}) => {
   const trimmedUserKey = apiKey?.trim();
   const effectiveKey =
@@ -113,7 +118,7 @@ export const generateResumeYAML = async (
   prompt: string,
   currentYaml: string,
   options?: ApiKeyOptions
-): Promise<string> => {
+): Promise<ResumeYamlActionResult> => {
   try {
     const ai = getGeminiClient(options);
     const modelId = "gemini-3-flash-preview"; 
@@ -148,10 +153,21 @@ export const generateResumeYAML = async (
         text = text.replace(/^```\n/, "").replace(/\n```$/, "");
     }
 
-    return text.trim();
+    const yaml = text.trim();
+
+    if (!yaml) {
+      return { error: "Gemini returned an empty response." };
+    }
+
+    return { yaml };
   } catch (error) {
     console.error("Gemini API Error:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to generate resume content.");
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to generate resume content.",
+    };
   }
 };
 
@@ -159,7 +175,7 @@ export const editResumeYAML = async (
   prompt: string,
   currentYaml: string,
   options?: ApiKeyOptions
-): Promise<string> => {
+): Promise<ResumeYamlActionResult> => {
   try {
     const ai = getGeminiClient(options);
     const modelId = "gemini-3-flash-preview";
@@ -199,9 +215,20 @@ export const editResumeYAML = async (
       .replace(/^```/g, "")
       .replace(/```$/g, "");
 
-    return text.trim();
+    const yaml = text.trim();
+
+    if (!yaml) {
+      return { error: "Gemini returned an empty response." };
+    }
+
+    return { yaml };
   } catch (error) {
     console.error("Gemini API Error (edit):", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to edit resume content.");
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to edit resume content.",
+    };
   }
 };

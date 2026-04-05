@@ -90,6 +90,11 @@ type ApiKeyOptions = {
   usePublicKey?: boolean;
 };
 
+export type ResumeYamlActionResult = {
+  yaml?: string;
+  error?: string;
+};
+
 const OPENAI_MODEL =
   process.env.OPENAI_MODEL || process.env.OPENAI_CHAT_MODEL || "gpt-4.1-mini";
 
@@ -172,7 +177,7 @@ export const generateResumeYAML = async (
   prompt: string,
   currentYaml: string,
   options?: ApiKeyOptions
-): Promise<string> => {
+): Promise<ResumeYamlActionResult> => {
   try {
     const client = getOpenAIClient(options);
     const fullPrompt = `
@@ -192,14 +197,21 @@ Generate the updated full YAML file based on the user request.
       0.4
     );
 
-    return stripMarkdownFence(text);
+    const yaml = stripMarkdownFence(text);
+
+    if (!yaml) {
+      return { error: "OpenAI returned an empty response." };
+    }
+
+    return { yaml };
   } catch (error) {
     console.error("OpenAI API Error:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to generate resume content."
-    );
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to generate resume content.",
+    };
   }
 };
 
@@ -207,7 +219,7 @@ export const editResumeYAML = async (
   prompt: string,
   currentYaml: string,
   options?: ApiKeyOptions
-): Promise<string> => {
+): Promise<ResumeYamlActionResult> => {
   try {
     const client = getOpenAIClient(options);
     const fullPrompt = `
@@ -227,11 +239,20 @@ Please output the full updated YAML.
       0.2
     );
 
-    return stripMarkdownFence(text);
+    const yaml = stripMarkdownFence(text);
+
+    if (!yaml) {
+      return { error: "OpenAI returned an empty response." };
+    }
+
+    return { yaml };
   } catch (error) {
     console.error("OpenAI API Error (edit):", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to edit resume content."
-    );
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to edit resume content.",
+    };
   }
 };

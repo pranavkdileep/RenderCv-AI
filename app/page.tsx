@@ -80,6 +80,7 @@ export default function Home() {
   const [showApiPrompt, setShowApiPrompt] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [aiFixPrompt, setAiFixPrompt] = useState<string | undefined>(undefined);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const editorInstanceRef = useRef<any | null>(null);
   const providerLabel = provider === "openai" ? "OpenAI" : "Gemini";
@@ -190,6 +191,7 @@ export default function Home() {
   const handleClear = () => {
     setYamlCode(INITIAL_YAML);
     setHasGeneratedYaml(false);
+    setGenerateError(null);
     if (typeof window !== "undefined") {
       window.sessionStorage.removeItem("resumeYaml");
       window.sessionStorage.removeItem("yamlChanged");
@@ -202,6 +204,7 @@ export default function Home() {
       return;
     }
 
+    setGenerateError(null);
     setIsGenerating(true);
     try {
       const options = {
@@ -218,10 +221,16 @@ export default function Home() {
           ? editResumeYAMLWithOpenAI
           : editResumeYAMLWithGemini;
 
-      const newYaml = hasGeneratedYaml
+      const result = hasGeneratedYaml
         ? await editResumeYAML(prompt, yamlCode, options)
         : await generateResumeYAML(prompt, yamlCode, options);
 
+      if (result.error || !result.yaml) {
+        setGenerateError(result.error || "Failed to generate content. Please try again.");
+        return;
+      }
+
+      const newYaml = result.yaml;
       setYamlCode(newYaml);
       setHasGeneratedYaml(true);
       setAutoRenderTrigger((prev) => prev + 1);
@@ -231,7 +240,11 @@ export default function Home() {
         window.sessionStorage.setItem("yamlChanged", "true");
       }
     } catch (error) {
-      alert("Failed to generate content. Please try again."+error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to generate content. Please try again.";
+      setGenerateError(message);
     } finally {
       setIsGenerating(false);
     }
@@ -384,6 +397,11 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden">
         <div className={`${viewMode === 'preview' ? 'hidden md:flex' : 'flex'} w-full md:w-1/2 lg:w-[45%] flex-col border-r border-gray-800 bg-[#1e1e1e]`}>
           <AIPrompt onGenerate={handleGenerate} isGenerating={isGenerating} prefillPrompt={aiFixPrompt} />
+          {generateError && (
+            <div className="border-b border-red-900/40 bg-red-950/60 px-4 py-3 text-sm text-red-200">
+              {generateError}
+            </div>
+          )}
           
           <div className="flex items-center justify-between px-4 py-2 bg-[#252526] border-b border-gray-800">
              <span className="text-xs font-mono text-gray-400 flex items-center gap-2">
