@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { renderSvgFromYaml } from "@/actions/renderSvg";
 
@@ -13,11 +13,16 @@ const Preview: React.FC<PreviewProps> = ({ yamlCode, onFixError, autoRenderTrigg
   const [svgs, setSvgs] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const yamlCodeRef = useRef(yamlCode);
+
+  useEffect(() => {
+    yamlCodeRef.current = yamlCode;
+  }, [yamlCode]);
 
   const handleRender = () => {
     setError(null);
     startTransition(async () => {
-      const result = await renderSvgFromYaml(yamlCode);
+      const result = await renderSvgFromYaml(yamlCodeRef.current);
       if (result.error) {
         setError(result.error);
         setSvgs([]);
@@ -30,12 +35,12 @@ const Preview: React.FC<PreviewProps> = ({ yamlCode, onFixError, autoRenderTrigg
   const isRendering = isPending;
 
   useEffect(() => {
-    if (autoRenderTrigger === undefined || !yamlCode.trim()) {
+    if (autoRenderTrigger === undefined || !yamlCodeRef.current.trim()) {
       return;
     }
 
     handleRender();
-  }, [autoRenderTrigger, yamlCode]);
+  }, [autoRenderTrigger]);
 
   return (
     <div className="h-full flex flex-col bg-gray-200 p-4 md:p-8">
