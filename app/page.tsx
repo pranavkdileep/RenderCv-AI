@@ -44,7 +44,7 @@ const INITIAL_YAML = `cv:
         highlights:
           - Graduated with Honors
 design:
-  theme: classic
+  theme: "engineeringresumes"
 `;
 
 const jsonLd = {
